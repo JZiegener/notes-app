@@ -4,7 +4,7 @@ import (
 	"log"
 	"os/exec"
 	"os"
-	"github.com/JZiegener/notes-app/commands"
+	"notes-app/commands"
 )
 
 func launchVi (filename string){
@@ -25,7 +25,7 @@ func launchVi (filename string){
 
 
 func main() {
-	_ = commands.Execute()
+	commands.Execute()
 
 	
 }
