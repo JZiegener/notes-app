@@ -1,13 +1,13 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os/exec"
 	"os"
+	"github.com/JZiegener/notes-app/commands"
 )
 
-func launchVi (string filename) {
+func launchVi (filename string){
 	cmd := exec.Command("vi", filename)
 
 	cmd.Stdin = os.Stdin
@@ -25,8 +25,7 @@ func launchVi (string filename) {
 
 
 func main() {
-	
-	
-	//launchVi("testFile")
+	_ = commands.Execute()
+
 	
 }
