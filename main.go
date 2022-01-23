@@ -1,31 +1,13 @@
 package main
 
 import (
-	"log"
-	"os/exec"
-	"os"
 	"notes-app/commands"
+	"notes-app/editor"
 )
-
-func launchVi (filename string){
-	cmd := exec.Command("vi", filename)
-
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	cmd.Start()
-
-	log.Printf("waiting for command to finish\n")
-	err := cmd.Wait()
-	log.Printf("Command Finished with  %s\n", err)
-}
-
-
-
 
 func main() {
 	commands.Execute()
 
-	
+	vi := new(editor.EditorVi)
+	editor.EditFile(vi, "testPath")
 }
