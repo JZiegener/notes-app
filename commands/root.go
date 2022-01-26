@@ -2,7 +2,7 @@ package commands
 
 import (
 	"fmt"
-	"notes-app/editor"
+	"notes-app/notebook"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -14,11 +14,27 @@ var rootCmd = &cobra.Command{
 	Long:  "A Command line application for creating, searching and, managing notes",
 	//	Args: cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("yep running some code")
 
-		vi := new(editor.EditorVi)
-		editor.EditFile(vi, "testPath")
+		backpack, err := notebook.InitializeBackpack()
+		if err != nil {
+			fmt.Println("error creating notebook")
+			return
+		}
+		notebook, err := backpack.CreateNotebook("TestNotebook")
+		if err != nil {
+			return
+		}
+		fmt.Println(notebook.GetName())
 
+		notebooks, err := backpack.GetAllNoteBooks()
+		if err != nil {
+			fmt.Println("error loading notebook")
+			return
+		}
+
+		for index, element := range notebooks {
+			fmt.Println("Notebook", index, "Name is", element.GetName())
+		}
 	},
 }
 
@@ -28,15 +44,3 @@ func Execute() {
 		os.Exit(1)
 	}
 }
-
-/*
-└── project
-    ├── go.mod
-    ├── main.go
-	├── commands
-	|   └── root.go
-	└── editor
-	    └── editor.go
-
-Want to reference editor from commands
-*/
