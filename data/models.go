@@ -14,8 +14,9 @@ type Note struct {
 
 type NoteBook struct {
 	gorm.Model
-	Name string
-	//Storage Storage
+	Name      string
+	StorageID int
+	Storage   Storage `gorm:"foreignKey:StorageID"`
 }
 
 type Tag struct {
