@@ -33,7 +33,7 @@ var rootCmd = &cobra.Command{
 		}
 
 		for index, element := range notebooks {
-			fmt.Println("Notebook", index, "Name is", element.GetName())
+			fmt.Println("Notebook", index, "Name is", element.GetName(), "create Time", element.GetCreateTime())
 		}
 	},
 }

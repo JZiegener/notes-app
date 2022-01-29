@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	models "notes-app/data"
-	"time"
 
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -46,10 +45,6 @@ func (g GormBackpack) GetAllNoteBooks() ([]NoteBook, error) {
 func (g GormBackpack) CreateNotebook(name string) (NoteBook, error) {
 	notebook := models.NoteBook{
 		Name: name,
-		Model: gorm.Model{
-			CreatedAt: time.Now(),
-			UpdatedAt: time.Now(),
-		},
 	}
 	if err := g.DB.Create(&notebook).Error; err != nil {
 		return nil, errors.New("could not create notebook")

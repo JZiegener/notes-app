@@ -26,8 +26,9 @@ type Tag struct {
 
 type Storage struct {
 	gorm.Model
-	Name string
-	Url  string
+	Name      string
+	Url       string
+	LocalPath string
 }
 
 type Identity struct {

@@ -7,14 +7,27 @@ import (
 )
 
 type editor interface {
-	editFile(path string) bool
+	EditFile(path string) bool
 }
 
 type EditorVi struct {
 }
 
-func EditFile(vi *EditorVi, path string) bool {
-	cmd := exec.Command("vi", path)
+func EditFile(path string) bool {
+	editorCommand := os.Getenv("EDITOR")
+
+	switch editorCommand {
+	case "vi":
+		return launchCliEditor(editorCommand, path)
+	case "code":
+		log.Fatal("VS code editor not yet implemented")
+		return false
+	}
+	return false
+}
+
+func launchCliEditor(command, path string) bool {
+	cmd := exec.Command(command, path)
 
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
@@ -25,8 +38,6 @@ func EditFile(vi *EditorVi, path string) bool {
 	log.Printf("waiting for command to finish\n")
 	err := cmd.Wait()
 	log.Printf("Command Finished with  %s\n", err)
-	if err != nil {
-		return false
-	}
-	return true
+
+	return err == nil
 }
