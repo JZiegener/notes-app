@@ -2,8 +2,9 @@ package main
 
 import (
 	"notes-app/commands"
+	"os"
 )
 
 func main() {
-	commands.Execute()
+	os.Exit(commands.Execute(os.Args))
 }
