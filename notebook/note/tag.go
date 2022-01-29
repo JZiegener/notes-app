@@ -1,38 +1,58 @@
 package note
 
 import (
+	"errors"
 	models "notes-app/data"
+
+	"gorm.io/gorm"
 )
 
+/*
+Tag used to
+*/
 type Tag interface {
 	GetID() uint
 	GetName() string
 
-	FindTag(tag string) (Tag, error)
 	GetTags() ([]Tag, error)
-	Create() error
 }
 
-type TagImp struct {
+type tagImp struct {
 	models.Tag
+	DB *gorm.DB
 }
 
-func (t TagImp) GetID() uint {
+/*
+GetTag searches for a matching tag name and creates the tag
+if it doesn't exist
+*/
+func GetTag(name string, db *gorm.DB) (Tag, error) {
+	t := tagImp{
+		DB: db,
+		Tag: models.Tag{
+			Name: name,
+		},
+	}
+	result := t.DB.Where(&t, "name").First(&t)
+	if result.Error != nil {
+		return t, errors.New("cant create new tag")
+	}
+	return t, nil
+
+}
+
+func (t tagImp) GetID() uint {
 	return t.ID
 }
 
-func (t TagImp) GetName() string {
+func (t tagImp) GetName() string {
 	return t.Name
 }
 
-func (t TagImp) FindTag(tag string) (Tag, error) {
+func (t tagImp) GetTags() ([]Tag, error) {
 	panic("not implemented") // TODO: Implement
 }
 
-func (t TagImp) GetTags() ([]Tag, error) {
-	panic("not implemented") // TODO: Implement
-}
-
-func (t TagImp) Create() error {
+func (t tagImp) Create() error {
 	panic("not implemented") // TODO: Implement
 }

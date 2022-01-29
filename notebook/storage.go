@@ -1,7 +1,7 @@
 package notebook
 
-type Storage interface {
-}
+// type Storage interface {
+// }
 
-type DiskStorage struct {
-}
+// type DiskStorage struct {
+// }

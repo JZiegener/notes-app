@@ -10,9 +10,7 @@ type editor interface {
 	EditFile(path string) bool
 }
 
-type EditorVi struct {
-}
-
+// EditFile launches the env variable defined "EDITOR" with the specified path
 func EditFile(path string) bool {
 	editorCommand := os.Getenv("EDITOR")
 

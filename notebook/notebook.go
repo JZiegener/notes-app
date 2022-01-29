@@ -10,18 +10,10 @@ import (
 )
 
 /*
-notebook implementation composed of
-	editor hooks
-	Formatter hooks
-	Parser hooks
-
-
-	database hooks
-	git hooks
-
+NoteBook represents a collection of related notes.
+These notes are all stored in a common repository.
 
 */
-
 type NoteBook interface {
 	GetCreateTime() time.Time
 	GetName() string
@@ -32,41 +24,42 @@ type NoteBook interface {
 	GetAllNotes() ([]note.Note, error)
 }
 
-type NoteBookData interface {
-	CreateNote(note note.Note) error
-	UpdateNote(note note.Note) error
+// type NoteBookData interface {
+// 	CreateNote(note note.Note) error
+// 	UpdateNote(note note.Note) error
 
-	FindNote(title string) ([]note.Note, error)
-	GetAllNotes() ([]note.Note, error)
-}
+// 	FindNote(title string) ([]note.Note, error)
+// 	GetAllNotes() ([]note.Note, error)
+// }
 
-type GormNoteBook struct {
+type gormNoteBook struct {
 	DB       *gorm.DB
 	Notebook models.NoteBook
 }
 
-func InitializeNotebook(db *gorm.DB) (GormNoteBook, error) {
+/*
+InitializeNotebook returns an initalized notebook
+Loads state information from sqlite3 database if it exists
+*/
+func InitializeNotebook(db *gorm.DB) (NoteBook, error) {
 
-	return GormNoteBook{DB: db}, nil
+	return gormNoteBook{DB: db}, nil
 }
 
-func (g GormNoteBook) GetName() string {
+func (g gormNoteBook) GetName() string {
 	return g.Notebook.Name
 }
 
-func (g GormNoteBook) GetCreateTime() time.Time {
+func (g gormNoteBook) GetCreateTime() time.Time {
 	return g.Notebook.Model.CreatedAt
 }
 
-func (g GormNoteBook) CreateNote(name string) (note.Note, error) {
-	note := note.InitNoteImp(name, g.DB)
-	if err := g.DB.Create(&note).Error; err != nil {
-		return note, errors.New("error")
-	}
+func (g gormNoteBook) CreateNote(name string) (note.Note, error) {
+	note := note.CreateNote(name, g.DB)
 	return note, nil
 }
 
-func (g GormNoteBook) FindNote(name string) ([]note.Note, error) {
+func (g gormNoteBook) FindNote(name string) ([]note.Note, error) {
 	var notes []note.Note
 
 	result := g.DB.Where("title like ? AND note_book_id = ?", "%"+name+"%", g.Notebook.ID).Find(&notes)
@@ -76,7 +69,7 @@ func (g GormNoteBook) FindNote(name string) ([]note.Note, error) {
 	return notes, nil
 }
 
-func (g GormNoteBook) GetAllNotes() ([]note.Note, error) {
+func (g gormNoteBook) GetAllNotes() ([]note.Note, error) {
 	var notes []note.Note
 
 	result := g.DB.Find(&notes)

@@ -38,6 +38,7 @@ var rootCmd = &cobra.Command{
 	},
 }
 
+// Execute is the main entry point for command parsing and execution
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)

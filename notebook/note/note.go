@@ -2,54 +2,69 @@ package note
 
 import (
 	models "notes-app/data"
+	"notes-app/editor"
 	"strings"
+	"time"
 
 	"gorm.io/gorm"
 )
 
+/*
+Note represents a single note composed of a file and associated tags
+*/
 type Note interface {
-	CreateNote() Note
 	AddTag(t Tag)
 	GetTags() []Tag
 	GetPath() string
 }
 
-type NoteImp struct {
-	Model models.Note
-	DB    *gorm.DB
+type noteImp struct {
+	models.Note
+	DB *gorm.DB
 }
 
-func InitNoteImp(title string, db *gorm.DB) Note {
-	return NoteImp{
+// CreateNote Launches the editor to get input, parses the file to extract metadata
+// then persists the metadata to db, and archives document content to git
+func CreateNote(title string, db *gorm.DB) Note {
+	note := noteImp{
 		DB: db,
-		Model: models.Note{
+		Note: models.Note{
+			Model: gorm.Model{
+				CreatedAt: time.Now(),
+			},
 			Title: title,
 		},
 	}
+	//launch the Editor to fill in the note
+	editor.EditFile(note.GetPath())
+	// Run the Parser to extract tags / references meta data
+
+	// Persist data
+	if err := note.DB.Create(&note).Error; err != nil {
+		//TODO: add logging
+		return nil
+	}
+	return note
 }
 
-func (n NoteImp) CreateNote() Note {
+func (n noteImp) AddTag(t Tag) {
 	panic("not implemented") // TODO: Implement
 }
 
-func (n NoteImp) AddTag(t Tag) {
+func (n noteImp) GetTags() []Tag {
 	panic("not implemented") // TODO: Implement
 }
 
-func (n NoteImp) GetTags() []Tag {
-	panic("not implemented") // TODO: Implement
-}
-
-func (n NoteImp) GetPath() string {
+func (n noteImp) GetPath() string {
 	dateString := n.Model.CreatedAt.String()
 	dateString = strings.ReplaceAll(dateString, " ", "_")
-	return n.Model.Book.Storage.LocalPath + dateString + ".md"
+	return n.Book.Storage.LocalPath + dateString + ".md"
 }
 
-type NoteParser interface {
-	Parse(body string) (string, []Tag, error)
-}
+// type NoteParser interface {
+// 	Parse(body string) (string, []Tag, error)
+// }
 
-type NoteFormatter interface {
-	Format(body string) (string, error)
-}
+// type NoteFormatter interface {
+// 	Format(body string) (string, error)
+// }
