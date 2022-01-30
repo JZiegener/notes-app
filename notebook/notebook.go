@@ -33,25 +33,41 @@ type NoteBook interface {
 // }
 
 type gormNoteBook struct {
-	DB       *gorm.DB
-	Notebook models.NoteBook
+	Model models.NoteBook
+	DB    *gorm.DB
 }
 
 /*
 InitializeNotebook returns an initalized notebook
 Loads state information from sqlite3 database if it exists
 */
-func InitializeNotebook(db *gorm.DB) (NoteBook, error) {
+func InitializeNotebook(name string, db *gorm.DB) (gormNoteBook, error) {
+	notebook := gormNoteBook{
+		DB: db,
+		Model: models.NoteBook{
+			Name: name,
+		},
+	}
 
-	return gormNoteBook{DB: db}, nil
+	result := notebook.DB.Where("name = ?", name).FirstOrCreate(&notebook.Model)
+	if result.Error != nil {
+		return notebook, errors.New("error searching for notebook")
+	}
+	if result.RowsAffected == 0 {
+		if err := notebook.DB.Create(&notebook.Model).Error; err != nil {
+			return notebook, errors.New("could not create notebook")
+		}
+	}
+
+	return notebook, nil
 }
 
 func (g gormNoteBook) GetName() string {
-	return g.Notebook.Name
+	return g.Model.Name
 }
 
 func (g gormNoteBook) GetCreateTime() time.Time {
-	return g.Notebook.Model.CreatedAt
+	return g.Model.CreatedAt
 }
 
 func (g gormNoteBook) CreateNote(name string) (note.Note, error) {
@@ -62,7 +78,7 @@ func (g gormNoteBook) CreateNote(name string) (note.Note, error) {
 func (g gormNoteBook) FindNote(name string) ([]note.Note, error) {
 	var notes []note.Note
 
-	result := g.DB.Where("title like ? AND note_book_id = ?", "%"+name+"%", g.Notebook.ID).Find(&notes)
+	result := g.DB.Where("title like ? AND note_book_id = ?", "%"+name+"%", g.Model.ID).Find(&notes)
 	if result.Error != nil {
 		return notes, errors.New("error")
 	}

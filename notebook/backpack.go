@@ -2,7 +2,6 @@ package notebook
 
 import (
 	"errors"
-	"fmt"
 	models "notes-app/data"
 
 	"gorm.io/driver/sqlite"
@@ -14,7 +13,7 @@ BackPack represents a collection of notebooks
 */
 type BackPack interface {
 	GetAllNoteBooks() ([]NoteBook, error)
-	CreateNotebook(name string) (NoteBook, error)
+	CreateNotebook(name, path string) (NoteBook, error)
 }
 
 type gormBackpack struct {
@@ -42,19 +41,14 @@ func (g gormBackpack) GetAllNoteBooks() ([]NoteBook, error) {
 	}
 	output := make([]NoteBook, len(noteBooks))
 	for index, element := range noteBooks {
-		output[index] = gormNoteBook{DB: g.DB, Notebook: element}
+		output[index] = gormNoteBook{DB: g.DB, Model: element}
 	}
 
 	return output, nil
 }
 
-func (g gormBackpack) CreateNotebook(name string) (NoteBook, error) {
-	notebook := models.NoteBook{
-		Name: name,
-	}
-	if err := g.DB.Create(&notebook).Error; err != nil {
-		return nil, errors.New("could not create notebook")
-	}
-	fmt.Println("Notebook ID: ", notebook.ID)
-	return gormNoteBook{DB: g.DB, Notebook: notebook}, nil
+func (g gormBackpack) CreateNotebook(name, path string) (NoteBook, error) {
+	notebook, _ := InitializeNotebook(name, g.DB)
+
+	return notebook, nil
 }
