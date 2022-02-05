@@ -2,7 +2,7 @@ package note
 
 import (
 	"errors"
-	models "notes-app/data"
+	"notes-app/data/models"
 
 	"gorm.io/gorm"
 )

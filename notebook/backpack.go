@@ -2,9 +2,8 @@ package notebook
 
 import (
 	"errors"
-	models "notes-app/data"
+	"notes-app/data/models"
 
-	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
@@ -13,23 +12,16 @@ BackPack represents a collection of notebooks
 */
 type BackPack interface {
 	GetAllNoteBooks() ([]NoteBook, error)
-	CreateNotebook(name, path string) (NoteBook, error)
+	CreateNotebook(name string) (NoteBook, error)
+	//GetNotebook(name string) (NoteBook, error)
 }
 
 type gormBackpack struct {
 	DB *gorm.DB
 }
 
-/*
-InitializeBackpack Attempts to open an existing backpack collection, or create one if none exist.
-*/
-func InitializeBackpack() (BackPack, error) {
-	db, err := gorm.Open(sqlite.Open(".backpack.db"), &gorm.Config{})
-	if err != nil {
-		return nil, errors.New("could not create backback")
-	}
-	db.AutoMigrate(&models.NoteBook{}, models.Note{}, models.Tag{})
-	return gormBackpack{DB: db}, nil
+func InitializeBackpack(db *gorm.DB) BackPack {
+	return gormBackpack{DB: db}
 }
 
 func (g gormBackpack) GetAllNoteBooks() ([]NoteBook, error) {
@@ -47,8 +39,33 @@ func (g gormBackpack) GetAllNoteBooks() ([]NoteBook, error) {
 	return output, nil
 }
 
-func (g gormBackpack) CreateNotebook(name, path string) (NoteBook, error) {
-	notebook, _ := InitializeNotebook(name, g.DB)
+func GetNotebook(name string, db *gorm.DB) (gormNoteBook, error) {
+	notebook := gormNoteBook{
+		DB: db,
+		Model: models.NoteBook{
+			Name: name,
+		},
+	}
+	// check if the name already exists
+	result := notebook.DB.Where("name = ?", name).FirstOrCreate(&notebook.Model)
+	if result.Error != nil {
+		return notebook, errors.New("error searching for notebook")
+	}
+	// insert it if
+	if result.RowsAffected == 0 {
+		if err := notebook.DB.Create(&notebook.Model).Error; err != nil {
+			return notebook, errors.New("could not create notebook")
+		}
+	}
 
+	return notebook, nil
+}
+
+func (g gormBackpack) CreateNotebook(name string) (NoteBook, error) {
+	notebook, err := InitializeNotebook(name, g.DB)
+
+	if err != nil {
+		return nil, errors.New("error finding notebooks")
+	}
 	return notebook, nil
 }

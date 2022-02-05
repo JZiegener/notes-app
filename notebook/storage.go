@@ -1,7 +1,13 @@
 package notebook
 
-// type Storage interface {
-// }
+type Storage interface {
+	StoreFile(path string) error
+}
 
-// type DiskStorage struct {
-// }
+// NoOpStorage does nothing
+type NoOpStorage struct {
+}
+
+func (s NoOpStorage) StoreFile(path string) error {
+	return nil
+}

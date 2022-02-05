@@ -1,7 +1,7 @@
 package note
 
 import (
-	models "notes-app/data"
+	"notes-app/data/models"
 	"notes-app/editor"
 	"strings"
 	"time"
@@ -13,7 +13,7 @@ import (
 Note represents a single note composed of a file and associated tags
 */
 type Note interface {
-	AddTag(t Tag)
+	//AddTag(t Tag)
 	GetTags() []Tag
 	GetPath() string
 }
@@ -45,6 +45,14 @@ func CreateNote(title string, db *gorm.DB) Note {
 		return nil
 	}
 	return note
+}
+
+func InitNote(note models.Note, db *gorm.DB) Note {
+	retVal := noteImp{
+		DB:   db,
+		Note: note,
+	}
+	return retVal
 }
 
 func (n noteImp) AddTag(t Tag) {

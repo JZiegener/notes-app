@@ -2,6 +2,7 @@ package commands
 
 import (
 	"fmt"
+	database "notes-app/data"
 	"notes-app/notebook"
 	"os"
 
@@ -18,26 +19,27 @@ var createCmd = &cobra.Command{
 	Use:   "create",
 	Short: "Create stuff",
 	Long:  "Used for creating new notes, notebooks, or storage locations",
-	Run: func(cmd *cobra.Command, args []string) {
-
-	},
 }
 
 var createNotebookCmd = &cobra.Command{
-	Use:   "notebook <Notebook Name> <Storage Location>",
+	Use:   "notebook <Notebook Name> [Storage Location]",
 	Short: "Create a notebook",
 	Long:  "Used for creating new notes, notebooks, or storage locations",
-	Args:  cobra.MinimumNArgs(2),
+	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		backpack, err := notebook.InitializeBackpack()
+		db, err := database.GetDataBase()
 		if err != nil {
-			fmt.Println("error creating notebook")
+			fmt.Println("error creating initalizing db")
 			return
 		}
-		notebook, err := backpack.CreateNotebook(args[0], args[1])
-		if err != nil {
-			return
-		}
+		//config := config.GetConfiguration(db)
+
+		backpack := notebook.InitializeBackpack(db)
+
+		var notebook notebook.NoteBook
+
+		notebook, err = backpack.CreateNotebook(args[0])
+
 		fmt.Println(notebook.GetName())
 
 		notebooks, err := backpack.GetAllNoteBooks()
@@ -87,7 +89,7 @@ var notebookName string
 // Execute is the main entry point for command parsing and execution
 func Execute() {
 	createCmd.AddCommand(createNotebookCmd)
-	createNoteCmd.Flags().StringVarP(&notebookName, "notebook name", "b", "", "Name of the notebook to use")
+	createNoteCmd.Flags().StringVarP(&notebookName, "notebook name", "b", "default", "Name of the notebook to use")
 	createCmd.AddCommand(createNoteCmd)
 
 	rootCmd.AddCommand(createCmd)

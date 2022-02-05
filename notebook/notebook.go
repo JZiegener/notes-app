@@ -2,7 +2,7 @@ package notebook
 
 import (
 	"errors"
-	models "notes-app/data"
+	"notes-app/data/models"
 	"notes-app/notebook/note"
 	"time"
 
@@ -23,14 +23,6 @@ type NoteBook interface {
 	FindNote(title string) ([]note.Note, error)
 	GetAllNotes() ([]note.Note, error)
 }
-
-// type NoteBookData interface {
-// 	CreateNote(note note.Note) error
-// 	UpdateNote(note note.Note) error
-
-// 	FindNote(title string) ([]note.Note, error)
-// 	GetAllNotes() ([]note.Note, error)
-// }
 
 type gormNoteBook struct {
 	Model models.NoteBook
